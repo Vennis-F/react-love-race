@@ -2,7 +2,6 @@ import { useRef, useEffect, useState } from "react";
 import carImageSrc from "../assets/dan_tam.jpg";
 import obstacleImageSrc from "../assets/hoang_anh.jpg";
 import GameOver from "./GameOver";
-import emailjs from "emailjs-com";
 
 // Các biến hằng số cấu hình game
 const CANVAS_WIDTH = 400;
@@ -11,8 +10,8 @@ const CANVAS_HEIGHT = 500;
 const CAR_WIDTH = 50;
 const CAR_HEIGHT = 80;
 
-const INITIAL_ROUND_TIME = 1; // Thời gian round ban đầu (giây)
-const TIME_ADDITION = 1; // Thời gian cộng thêm mỗi round thắng (giây)
+const INITIAL_ROUND_TIME = 10; // Thời gian round ban đầu (giây)
+const TIME_ADDITION = 5; // Thời gian cộng thêm mỗi round thắng (giây)
 
 const OBSTACLE_WIDTH = 30;
 const OBSTACLE_HEIGHT = 30;
@@ -24,6 +23,16 @@ const INITIAL_MAX_OBSTACLES = 4;
 
 const Game = () => {
   const canvasRef = useRef(null);
+  const audioRef = useRef(null);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0); // Track index to loop
+  const tracks = [
+    "bg1.mp3",
+    "bg2.mp3",
+    "bg3.mp3",
+    "bg4.mp3",
+    "bg5.mp3",
+    "bg6.mp3",
+  ];
 
   // Số vòng thắng hiện tại (mỗi vòng thắng tăng độ khó)
   const [roundWins, setRoundWins] = useState(0);
@@ -228,6 +237,13 @@ const Game = () => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (isGameOver) return;
+
+      // if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      //   if (audioRef.current) {
+      //     audioRef.current.play(); // Tự động phát nhạc khi mở khóa
+      //   }
+      // }
+
       let newX = carPos.x;
       const step = 20;
       if (e.key === "ArrowLeft") {
@@ -277,8 +293,40 @@ const Game = () => {
     setCarPos({ ...carPos, x: newX });
   };
 
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    // Hàm chuyển bài nhạc khi bài hát kết thúc
+    const checkTrackEnd = () => {
+      if (audio.currentTime >= audio.duration - 1) {
+        // Nếu thời gian đã gần kết thúc
+        const nextTrackIndex = (currentTrackIndex + 1) % tracks.length;
+        setCurrentTrackIndex(nextTrackIndex); // Cập nhật track tiếp theo
+      }
+    };
+
+    const interval = setInterval(checkTrackEnd, 100); // Kiểm tra mỗi 100ms
+
+    // Clean up interval khi component unmount hoặc track thay đổi
+    return () => clearInterval(interval);
+  }, [currentTrackIndex]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    // Thay đổi nguồn nhạc sau khi index thay đổi
+    audio.src = tracks[currentTrackIndex];
+
+    // Đảm bảo bài hát đã được tải và phát ngay lập tức
+    audio.load(); // Tải lại file âm thanh
+    audio.play().catch((err) => {
+      console.log("Error playing audio:", err);
+    }); // Đảm bảo âm thanh được phát
+  }, [currentTrackIndex]);
+
   return (
     <div style={{ textAlign: "center" }}>
+      <audio ref={audioRef} loop />
       <h1>Đua Xe Tình Yêu</h1>
       <p>Round wins: {roundWins} / 5</p>
       <canvas

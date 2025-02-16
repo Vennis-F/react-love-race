@@ -1,5 +1,4 @@
-// src/components/Game.jsx
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import carImageSrc from "../assets/dan_tam.jpg";
 import obstacleImageSrc from "../assets/hoang_anh.jpg";
 import GameOver from "./GameOver";
@@ -11,8 +10,8 @@ const CANVAS_HEIGHT = 500;
 const CAR_WIDTH = 50;
 const CAR_HEIGHT = 80;
 
-const INITIAL_ROUND_TIME = 10; // Thời gian round ban đầu (giây)
-const TIME_ADDITION = 10; // Thời gian cộng thêm mỗi round thắng (giây)
+const INITIAL_ROUND_TIME = 1; // Thời gian round ban đầu (giây)
+const TIME_ADDITION = 1; // Thời gian cộng thêm mỗi round thắng (giây)
 
 const OBSTACLE_WIDTH = 30;
 const OBSTACLE_HEIGHT = 30;
@@ -32,6 +31,7 @@ const Game = () => {
   const [isGameOver, setIsGameOver] = useState(false);
   const [gameMessage, setGameMessage] = useState("");
   const [cheerMessage, setCheerMessage] = useState("");
+  const [isWin, setIsWin] = useState(false); // Thêm state isWin để xác định thắng hay thua
 
   // Thời gian round: ban đầu là INITIAL_ROUND_TIME giây, mỗi round thắng cộng thêm TIME_ADDITION giây.
   const [roundTime, setRoundTime] = useState(INITIAL_ROUND_TIME);
@@ -129,6 +129,7 @@ const Game = () => {
         ) {
           setIsGameOver(true);
           setGameMessage("Thua rồi, mắng anh nào!");
+          setIsWin(false); // Nếu thua thì là false
           return;
         }
       }
@@ -194,23 +195,28 @@ const Game = () => {
       const interval = setInterval(() => {
         setRoundTime((prevTime) => {
           if (prevTime <= 1) {
-            setRoundWins((wins) => {
-              const newWins = wins + 1;
-              if (newWins >= 5) {
-                setGameMessage(
-                  "Chúc mừng! Trà sữa đang chờ – Anh mua ngay nhé!"
-                );
-                setIsGameOver(true);
-              } else {
-                resetRound(newWins);
-              }
-              return newWins;
-            });
-            return 0;
+            if (!isGameOver) {
+              // Kiểm tra lại tránh set sai state
+              setRoundWins((wins) => {
+                const newWins = wins + 1;
+                if (newWins >= 5) {
+                  setGameMessage(
+                    "Chúc mừng! Trà sữa đang chờ – Anh mua ngay nhé!"
+                  );
+                  setIsGameOver(true);
+                  setIsWin(true); // Đặt thắng khi đạt 5 vòng
+                } else {
+                  resetRound(newWins);
+                }
+                return newWins;
+              });
+            }
+            return INITIAL_ROUND_TIME; // Reset lại đúng thời gian
           }
           return prevTime - 1;
         });
       }, 1000);
+
       return () => clearInterval(interval);
     }
   }, [isGameOver]);
@@ -252,6 +258,7 @@ const Game = () => {
     const message = formData.get("cheer");
     setCheerMessage(message);
     setIsGameOver(false);
+    setIsWin(false); // Reset lại trạng thái thắng khi bắt đầu lại
     resetRound(roundWins);
   };
 
@@ -265,16 +272,49 @@ const Game = () => {
         height={CANVAS_HEIGHT}
         style={{ border: "1px solid black" }}
       />
-      {isGameOver && (
+      {isGameOver && isWin == false && (
         <GameOver
           onRestart={() => {
             setIsGameOver(false);
+            setIsWin(false); // Reset trạng thái thắng khi restart
             setRoundWins(0);
             resetRound(0);
           }}
           roundWins={roundWins}
+          isWin={isWin} // Pass thêm isWin để hiển thị đúng trạng thái thắng/thua
           onSendMessage={(message) => setCheerMessage(message)}
         />
+      )}
+      {isGameOver && isWin && (
+        <div
+          style={{
+            position: "fixed",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            padding: "30px 40px",
+            borderRadius: "15px",
+            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.3)",
+            textAlign: "center",
+            animation: "fadeIn 0.5s ease-out",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "'Roboto', sans-serif",
+              fontSize: "24px",
+              marginBottom: "15px",
+            }}
+          >
+            Woaaa, chị giỏi quá trời đii!
+          </h2>
+          <p style={{ fontFamily: "'Arial', sans-serif", fontSize: "18px" }}>
+            Mật khẩu để truy cập vào sách là{" "}
+            <strong style={{ color: "#f5a623" }}>29280906</strong>
+          </p>
+        </div>
       )}
     </div>
   );

@@ -388,16 +388,23 @@ const Game = () => {
 
       {/* Các nút điều khiển trên mobile */}
       {!isGameOver && (
-        <div style={{ marginTop: 20 }}>
+        <div
+          style={{
+            marginTop: 20,
+            display: "flex",
+            justifyContent: "center", // Căn giữa
+            gap: "10px", // Khoảng cách giữa các nút
+          }}
+        >
           <button
             onTouchStart={(e) => handleTouchStart(e, "left")}
-            style={{ fontSize: "20px", marginRight: "10px" }}
+            style={{ fontSize: "20px", padding: "10px 20px" }}
           >
             Trái
           </button>
           <button
             onTouchStart={(e) => handleTouchStart(e, "right")}
-            style={{ fontSize: "20px" }}
+            style={{ fontSize: "20px", padding: "10px 20px" }}
           >
             Phải
           </button>

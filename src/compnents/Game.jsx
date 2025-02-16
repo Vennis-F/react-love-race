@@ -263,6 +263,20 @@ const Game = () => {
     resetRound(roundWins);
   };
 
+  const handleTouchStart = (e, direction) => {
+    if (isGameOver) return;
+    let newX = carPos.x;
+    const step = 20;
+
+    if (direction === "left") {
+      newX = Math.max(0, carPos.x - step);
+    } else if (direction === "right") {
+      newX = Math.min(CANVAS_WIDTH - CAR_WIDTH, carPos.x + step);
+    }
+
+    setCarPos({ ...carPos, x: newX });
+  };
+
   return (
     <div style={{ textAlign: "center" }}>
       <h1>Đua Xe Tình Yêu</h1>
@@ -315,6 +329,24 @@ const Game = () => {
             Mật khẩu để truy cập vào sách là{" "}
             <strong style={{ color: "#f5a623" }}>29280906</strong>
           </p>
+        </div>
+      )}
+
+      {/* Các nút điều khiển trên mobile */}
+      {!isGameOver && (
+        <div style={{ marginTop: 20 }}>
+          <button
+            onTouchStart={(e) => handleTouchStart(e, "left")}
+            style={{ fontSize: "20px", marginRight: "10px" }}
+          >
+            Trái
+          </button>
+          <button
+            onTouchStart={(e) => handleTouchStart(e, "right")}
+            style={{ fontSize: "20px" }}
+          >
+            Phải
+          </button>
         </div>
       )}
     </div>

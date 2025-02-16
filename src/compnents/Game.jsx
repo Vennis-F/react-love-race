@@ -284,6 +284,12 @@ const Game = () => {
     let newX = carPos.x;
     const step = 20;
 
+    if (direction === "left" || direction === "right") {
+      if (audioRef.current) {
+        audioRef.current.play(); // Tự động phát nhạc khi mở khóa
+      }
+    }
+
     if (direction === "left") {
       newX = Math.max(0, carPos.x - step);
     } else if (direction === "right") {

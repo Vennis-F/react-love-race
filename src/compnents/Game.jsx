@@ -238,11 +238,11 @@ const Game = () => {
     const handleKeyDown = (e) => {
       if (isGameOver) return;
 
-      // if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-      //   if (audioRef.current) {
-      //     audioRef.current.play(); // Tự động phát nhạc khi mở khóa
-      //   }
-      // }
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (audioRef.current) {
+          audioRef.current.play(); // Tự động phát nhạc khi mở khóa
+        }
+      }
 
       let newX = carPos.x;
       const step = 20;

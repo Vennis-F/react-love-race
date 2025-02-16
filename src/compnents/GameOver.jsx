@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import emailjs from "emailjs-com";
 
 const responses = [
   "eee, sao tự nhiên mắng em :(((( ",
@@ -37,6 +38,7 @@ const GameOver = ({ onRestart }) => {
     setResponseMessage(randomResponse);
     setCheerMessage("");
     setIsMessageSent(true);
+    sendEmail(cheerMessage);
 
     // Hiển thị phản hồi 3 giây rồi restart game
     setTimeout(() => {
@@ -44,6 +46,28 @@ const GameOver = ({ onRestart }) => {
       setIsMessageSent(false);
       onRestart();
     }, 3000);
+  };
+
+  const sendEmail = (confession) => {
+    const templateParams = {
+      message: confession,
+    };
+
+    emailjs
+      .send(
+        "service_ke21ltr", // Service ID từ EmailJS
+        "template_hiqldzn", // Template ID từ EmailJS
+        templateParams,
+        "akh4-rUy0Rhjek-2f" // User ID từ EmailJS
+      )
+      .then(
+        (result) => {
+          // console.log("Email sent successfully:", result.text);
+        },
+        (error) => {
+          console.error("Error sending:", error.text);
+        }
+      );
   };
 
   return (

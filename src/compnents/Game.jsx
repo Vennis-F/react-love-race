@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import carImageSrc from "../assets/dan_tam.jpg";
 import obstacleImageSrc from "../assets/hoang_anh.jpg";
 import GameOver from "./GameOver";
+import emailjs from "emailjs-com";
 
 // Các biến hằng số cấu hình game
 const CANVAS_WIDTH = 400;
